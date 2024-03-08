@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+# 클러스터링을 통해서 점을 찍는 작업을 함수안에다 포함시킴. 이에 따라서 locations 리스트에는 centroid들이 리스트 형태로 들어오게 되고 locations는 sklearn에서 학습이 가능한 방식인 2차원 리스트가 된다. 이를 통해서 클러스터링 작업을 진행한다.
+# 문제: 점은 왜 뜨지 않는가?
 
 """
 Python 3 wrapper for identifying objects in images
@@ -7,13 +8,13 @@ Running the script requires opencv-python to be installed (`pip install opencv-p
 Directly viewing or returning bounding-boxed images requires scikit-image to be installed (`pip install scikit-image`)
 Use pip3 instead of pip on some systems to be sure to install modules for python3
 """
-
+from sklearn.cluster import KMeans
 import ctypes as ct
 import random
 import os
 import cv2
 import numpy as np
-
+locations = []
 
 class BOX(ct.Structure):
     _fields_ = (
@@ -93,6 +94,7 @@ def bbox2points(bbox):
     xmax = round(x + (w / 2))
     ymin = round(y - (h / 2))
     ymax = round(y + (h / 2))
+    locations.append([x,y])
     return xmin, ymin, xmax, ymax
 
 
@@ -128,15 +130,26 @@ def load_network(config_file, data_file, weights, batch_size=1):
     return network, class_names, colors
 
 
-def print_detections(detections, coordinates=False):
+def print_detections(detections, coordinates=True):
+    import cv2
+    from sklearn.cluster import KMeans
     print("\nObjects:")
     for label, confidence, bbox in detections:
         x, y, w, h = bbox
         if coordinates:
             print("{}: {}%    (left_x: {:.0f}   top_y:  {:.0f}   width:   {:.0f}   height:  {:.0f})".format(label, confidence, x, y, w, h))
         else:
+            x = []
+            y = []
+            for i in range(len(locations)):
+              x.append(locations[i][0])
+              y.appned(locations[i][1])
+              median_x = np.median(x)
+              median_y = np.median(y)
+              print(median_x,median_y)
+              image = cv2.circle(image,(median_x,median_y),red_color,5)
+            cv2.imshow(image)
             print("{}: {}%".format(label, confidence))
-
 
 def draw_boxes(detections, image, colors):
     import cv2
@@ -146,6 +159,16 @@ def draw_boxes(detections, image, colors):
         cv2.putText(image, "{} [{:.2f}]".format(label, float(confidence)),
                     (left, top - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     colors[label], 2)
+     x = []
+     y = []
+     for i in range(len(locations)):
+         x.append(locations[i][0])
+         y.appned(locations[i][1])
+         median_x = np.median(x)
+         median_y = np.median(y)
+         print(median_x,median_y)
+         image = cv2.circle(image,(median_x,median_y),red_color,5)
+     cv2.imshow(image)
     return image
 
 
@@ -358,3 +381,6 @@ network_predict_batch = lib.network_predict_batch
 network_predict_batch.argtypes = (ct.c_void_p, IMAGE, ct.c_int, ct.c_int, ct.c_int,
                                   ct.c_float, ct.c_float, IntPtr, ct.c_int, ct.c_int)
 network_predict_batch.restype = DETNUMPAIRPtr
+
+
+
