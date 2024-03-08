@@ -143,7 +143,7 @@ def print_detections(detections, coordinates=True):
             y = []
             for i in range(len(locations)):
               x.append(locations[i][0])
-              y.appned(locations[i][1])
+              y.append(locations[i][1])
               median_x = np.median(x)
               median_y = np.median(y)
               print(median_x,median_y)
@@ -159,16 +159,16 @@ def draw_boxes(detections, image, colors):
         cv2.putText(image, "{} [{:.2f}]".format(label, float(confidence)),
                     (left, top - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     colors[label], 2)
-     x = []
-     y = []
-     for i in range(len(locations)):
+    x = []
+    y = []
+    for i in range(len(locations)):
          x.append(locations[i][0])
          y.appned(locations[i][1])
          median_x = np.median(x)
          median_y = np.median(y)
          print(median_x,median_y)
          image = cv2.circle(image,(median_x,median_y),red_color,5)
-     cv2.imshow(image)
+    cv2.imshow(image)
     return image
 
 
